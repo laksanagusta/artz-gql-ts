@@ -1,0 +1,44 @@
+{
+  "name": "artz-gql-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "tsc -w",
+    "dev": "nodemon dist/index.js",
+    "dev2": "nodemon --exec ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "start2": "ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.2.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "apollo-server-express": "^3.12.0",
+    "argon2": "^0.30.3",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.18.2",
+    "graphql": "^16.6.0",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^2.0.0-beta.2",
+    "typeorm": "^0.3.16"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
+  }
+}
