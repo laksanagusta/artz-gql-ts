@@ -1,4 +1,4 @@
-import {   
+import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
@@ -8,33 +8,31 @@ import {
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 
-
 @ObjectType()
 @Entity()
 export class Transaction extends BaseEntity {
-
   @Field()
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
-  @Column({type: "text"})
+  @Column({ type: "text" })
   complaint: string;
 
   @Field()
-  @Column({type: "text"})
+  @Column({ type: "text" })
   symptom: string;
 
   @Field()
-  @Column({type: "text"})
+  @Column({ type: "text" })
   diagnosis: string;
 
   @Field()
-  @Column({type: "text"})
+  @Column({ type: "text" })
   actions: string;
 
   @Field()
-  @Column({type: "text"})
+  @Column({ type: "text" })
   recipe: string;
 
   @Field(() => String)

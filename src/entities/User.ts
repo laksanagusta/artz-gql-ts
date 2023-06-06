@@ -13,18 +13,18 @@ export class User extends BaseEntity {
   name: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   phone_number: string;
 
   @Field()
   @Column()
-  pasword: string;
+  password: string;
 
   @Field()
-  @Column()
+  @Column({ nullable: true, default: "" })
   token: string;
 }

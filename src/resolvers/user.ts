@@ -12,8 +12,8 @@ import { User } from "../entities/User";
 import { connectionSource } from "../config/ormconfig";
 import { Repository } from "typeorm";
 import { isAuth } from "../middleware/auth";
-import { string } from "joi";
 import argon2 from "argon2";
+import Jwt from "jsonwebtoken";
 
 @InputType()
 class UserInput {
@@ -21,8 +21,6 @@ class UserInput {
   name: string;
   @Field()
   email: string;
-  @Field()
-  age: number;
   @Field()
   phone_number: string;
   @Field()
@@ -37,19 +35,21 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async register(@Arg("input", () => string) input: UserInput): Promise<User> {
+  async register(@Arg("input") input: UserInput): Promise<User> {
     input.password = await argon2.hash(input.password);
     const user = await User.create({
       ...input,
     }).save();
+
+    user.token = "";
 
     return user;
   }
 
   @Mutation(() => User)
   async login(
-    @Arg("email", () => string) email: any,
-    @Arg("password", () => string) password: string
+    @Arg("email", () => String) email: any,
+    @Arg("password", () => String) password: string
   ): Promise<User | null> {
     const user = await User.findOne({
       where: {
@@ -57,12 +57,24 @@ export class UserResolver {
       },
     });
 
-    if (user) {
-      const matchPassword = await argon2.verify(user.pasword, password);
-      if (!matchPassword) {
-        throw new Error("Password not match");
-      }
+    if (!user) {
+      throw new Error("Email/Password is wrong");
     }
+
+    const matchPassword = await argon2.verify(user.password, password);
+    if (!matchPassword) {
+      throw new Error("Email/Password is wrong");
+    }
+    const token = Jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET_KEY
+    );
+
+    user.token = token;
+    user.save();
 
     return user;
   }
@@ -85,7 +97,6 @@ export class UserResolver {
       .update(User)
       .set({
         name: input.name,
-        age: input.age,
         phone_number: input.phone_number,
       })
       .where("id = :id", { id: id })

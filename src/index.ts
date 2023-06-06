@@ -6,6 +6,8 @@ import { buildSchema } from "type-graphql";
 import { connectionSource } from "./config/ormconfig";
 import "dotenv-safe/config";
 import { MemberResolver } from "./resolvers/member";
+import { TransactionResolver } from "./resolvers/transaction";
+import { UserResolver } from "./resolvers/user";
 
 const main = async () => {
   await connectionSource.initialize();
@@ -16,7 +18,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [MemberResolver],
+      resolvers: [MemberResolver, TransactionResolver, UserResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({
