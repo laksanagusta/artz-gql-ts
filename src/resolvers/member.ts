@@ -4,6 +4,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
@@ -18,13 +19,23 @@ import { isAuth } from "../middleware/auth";
 @InputType()
 class MemberInput {
   @Field()
-  name: string;
+  firstName: string;
+  @Field()
+  lastName: string;
   @Field()
   age: number;
   @Field()
   phone_number: string;
   @Field()
   address: string;
+}
+
+@ObjectType()
+class SearchMemberResult {
+  @Field()
+  count: number;
+  @Field(() => [Member])
+  members: Member[];
 }
 
 @Resolver()
@@ -43,6 +54,7 @@ export class MemberResolver {
   }
 
   @Mutation(() => Member, { nullable: true })
+  @UseMiddleware(isAuth)
   async updateMember(
     @Arg("id", () => Int) id: any,
     @Arg("input") input: MemberInput
@@ -51,7 +63,8 @@ export class MemberResolver {
       .createQueryBuilder()
       .update(Member)
       .set({
-        name: input.name,
+        firstName: input.firstName,
+        lastName: input.lastName,
         age: input.age,
         phone_number: input.phone_number,
         address: input.address,
@@ -71,19 +84,47 @@ export class MemberResolver {
     return member;
   }
 
-  @Query(() => [Member], { nullable: true })
-  @UseMiddleware(isAuth)
+  @Query(() => SearchMemberResult, { nullable: true })
   async searchMember(
     @Arg("phone_number", () => String, { nullable: true }) phone_number: any,
-    @Arg("name", () => String, { nullable: true }) name: any
-  ): Promise<Member[] | null> {
-    const members = this._memberRepo.find({
-      where: {
-        name: name,
-        phone_number: phone_number,
-      },
-    });
+    @Arg("name", () => String, { nullable: true }) name: any,
+    @Arg("limit", () => Number, { nullable: true }) limit: any,
+    @Arg("page", () => Number, { nullable: true }) page: any
+  ): Promise<SearchMemberResult | null> {
+    const members = this._memberRepo.createQueryBuilder("member");
 
-    return members;
+    if (name) {
+      members.where(
+        "lower(member.firstName) LIKE :name OR lower(member.lastName) LIKE :name",
+        {
+          name: `%${name.toLowerCase()}%`,
+        }
+      );
+    }
+
+    if (phone_number) {
+      members.where("lower(member.phone_number) LIKE :phone_number", {
+        phone_number: `%${phone_number.toLowerCase()}%`,
+      });
+    }
+
+    const count = await members.getCount();
+
+    if (page) {
+      members.skip(page);
+    }
+
+    if (limit) {
+      members.take(limit);
+    }
+
+    members.orderBy("member.id", "DESC");
+
+    const memberResult = await members.getMany();
+
+    return {
+      count,
+      members: memberResult,
+    };
   }
 }

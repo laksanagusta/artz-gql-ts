@@ -14,6 +14,18 @@ import { Repository } from "typeorm";
 import { isAuth } from "../middleware/auth";
 
 @InputType()
+class MedicineInput {
+  @Field()
+  id: number;
+}
+
+@InputType()
+class MemberTransactionInput {
+  @Field()
+  id: number;
+}
+
+@InputType()
 class TransactionInput {
   @Field()
   complaint: string;
@@ -23,8 +35,10 @@ class TransactionInput {
   diagnosis: string;
   @Field()
   actions: string;
-  @Field()
-  recipe: string;
+  @Field(() => [MedicineInput])
+  medicines?: MedicineInput[];
+  @Field(() => MemberTransactionInput)
+  member?: MemberTransactionInput;
 }
 
 @Resolver()
@@ -64,9 +78,12 @@ export class TransactionResolver {
   async transaction(
     @Arg("id", () => Int) id: any
   ): Promise<Transaction | null> {
-    const transaction = await this._transactionRepo.findOneBy({
-      id: id,
+    const transaction = await this._transactionRepo.findOne({
+      where: { id: id },
+      relations: ["medicines", "member"],
     });
+
+    console.log(transaction);
 
     return transaction;
   }

@@ -1,26 +1,40 @@
 import { Field, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Transaction } from "./Transaction";
 
 @ObjectType()
 @Entity()
 export class Member extends BaseEntity {
-    @Field()
-    @PrimaryGeneratedColumn()
-    id: Number
+  @Field()
+  @PrimaryGeneratedColumn()
+  id: Number;
 
-    @Field()
-    @Column()
-    name: String
+  @Field()
+  @Column()
+  firstName: String;
 
-    @Field()
-    @Column()
-    age: Number
+  @Field()
+  @Column()
+  lastName: String;
 
-    @Field()
-    @Column()
-    phone_number: String
+  @Field()
+  @Column()
+  age: Number;
 
-    @Field()
-    @Column()
-    address: String
+  @Field()
+  @Column()
+  phone_number: String;
+
+  @Field()
+  @Column()
+  address: String;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.member)
+  transactions: Transaction[];
 }

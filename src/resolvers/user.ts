@@ -4,14 +4,15 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
-  UseMiddleware,
+  // UseMiddleware,
 } from "type-graphql";
 import { User } from "../entities/User";
 import { connectionSource } from "../config/ormconfig";
 import { Repository } from "typeorm";
-import { isAuth } from "../middleware/auth";
+// import { isAuth } from "../middleware/auth";
 import argon2 from "argon2";
 import Jwt from "jsonwebtoken";
 
@@ -25,6 +26,22 @@ class UserInput {
   phone_number: string;
   @Field()
   password: string;
+}
+
+@InputType()
+class UserUpdate {
+  @Field()
+  name: string;
+  @Field()
+  phone_number: string;
+}
+
+@ObjectType()
+class SearchUserResult {
+  @Field()
+  count: number;
+  @Field(() => [User])
+  users: User[];
 }
 
 @Resolver()
@@ -90,7 +107,7 @@ export class UserResolver {
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Arg("id", () => Int) id: any,
-    @Arg("input") input: UserInput
+    @Arg("input") input: UserUpdate
   ): Promise<User> {
     const result = await connectionSource
       .createQueryBuilder()
@@ -114,19 +131,40 @@ export class UserResolver {
     return user;
   }
 
-  @Query(() => [User], { nullable: true })
-  @UseMiddleware(isAuth)
+  @Query(() => SearchUserResult, { nullable: true })
   async searchUser(
-    @Arg("phone_number", () => String, { nullable: true }) phone_number: any,
-    @Arg("name", () => String, { nullable: true }) name: any
-  ): Promise<User[] | null> {
-    const users = this._userRepo.find({
-      where: {
-        name: name,
-        phone_number: phone_number,
-      },
-    });
+    @Arg("name", () => String, { nullable: true }) name: any,
+    @Arg("limit", () => Number, { nullable: true }) limit: any,
+    @Arg("page", () => Number, { nullable: true }) page: any
+  ): Promise<SearchUserResult | null> {
+    const users = this._userRepo.createQueryBuilder("user");
 
-    return users;
+    if (name) {
+      users.where(
+        "lower(user.name) LIKE :name OR lower(user.name) LIKE :name",
+        {
+          name: `%${name.toLowerCase()}%`,
+        }
+      );
+    }
+
+    const count = await users.getCount();
+
+    if (page) {
+      users.skip(page);
+    }
+
+    if (limit) {
+      users.take(limit);
+    }
+
+    users.orderBy("user.id", "DESC");
+
+    const userResult = await users.getMany();
+
+    return {
+      count,
+      users: userResult,
+    };
   }
 }

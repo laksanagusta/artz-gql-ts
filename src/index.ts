@@ -8,6 +8,7 @@ import "dotenv-safe/config";
 import { MemberResolver } from "./resolvers/member";
 import { TransactionResolver } from "./resolvers/transaction";
 import { UserResolver } from "./resolvers/user";
+import { Medicine } from "./entities/Medicine";
 
 const main = async () => {
   await connectionSource.initialize();
@@ -18,7 +19,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [MemberResolver, TransactionResolver, UserResolver],
+      resolvers: [MemberResolver, TransactionResolver, UserResolver, Medicine],
       validate: false,
     }),
     context: ({ req, res }) => ({

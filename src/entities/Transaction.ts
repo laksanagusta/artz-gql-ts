@@ -5,8 +5,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
+import { Medicine } from "./Medicine";
+import { Member } from "./Member";
 
 @ObjectType()
 @Entity()
@@ -31,9 +36,14 @@ export class Transaction extends BaseEntity {
   @Column({ type: "text" })
   actions: string;
 
-  @Field()
-  @Column({ type: "text" })
-  recipe: string;
+  @Field(() => [Medicine])
+  @ManyToMany(() => Medicine, { cascade: true })
+  @JoinTable()
+  medicines: Medicine[];
+
+  @Field(() => Member)
+  @ManyToOne(() => Member, (member) => member.transactions)
+  member: Member;
 
   @Field(() => String)
   @CreateDateColumn()
