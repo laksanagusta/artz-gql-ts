@@ -2,9 +2,11 @@ import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
 
@@ -37,4 +39,12 @@ export class Member extends BaseEntity {
 
   @OneToMany(() => Transaction, (transaction) => transaction.member)
   transactions: Transaction[];
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

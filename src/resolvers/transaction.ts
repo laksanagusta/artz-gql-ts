@@ -14,7 +14,7 @@ import { Repository } from "typeorm";
 import { isAuth } from "../middleware/auth";
 
 @InputType()
-class MedicineInput {
+class MedicineTransactionInput {
   @Field()
   id: number;
 }
@@ -35,8 +35,8 @@ class TransactionInput {
   diagnosis: string;
   @Field()
   actions: string;
-  @Field(() => [MedicineInput])
-  medicines?: MedicineInput[];
+  @Field(() => [MedicineTransactionInput])
+  medicines?: MedicineTransactionInput[];
   @Field(() => MemberTransactionInput)
   member?: MemberTransactionInput;
 }
