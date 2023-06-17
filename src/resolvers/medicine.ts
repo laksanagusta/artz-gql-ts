@@ -18,10 +18,6 @@ import { isAuth } from "../middleware/auth";
 class MedicineInput {
   @Field()
   name: string;
-  @Field()
-  createdAt: Date;
-  @Field()
-  updatedAt: Date;
 }
 
 @ObjectType()
@@ -81,6 +77,8 @@ export class MedicineResolver {
   ): Promise<SearchMedicineResult | null> {
     const medicines = this._medicineRepo.createQueryBuilder("medicine");
 
+    const offset = page * limit;
+
     if (name) {
       medicines.where("lower(medicine.name) LIKE :name", {
         name: `%${name.toLowerCase()}%`,
@@ -90,7 +88,7 @@ export class MedicineResolver {
     const count = await medicines.getCount();
 
     if (page) {
-      medicines.skip(page);
+      medicines.skip(offset);
     }
 
     if (limit) {

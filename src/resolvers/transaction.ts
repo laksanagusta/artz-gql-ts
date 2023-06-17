@@ -4,6 +4,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   UseMiddleware,
@@ -39,6 +40,14 @@ class TransactionInput {
   medicines?: MedicineTransactionInput[];
   @Field(() => MemberTransactionInput)
   member?: MemberTransactionInput;
+}
+
+@ObjectType()
+class SearchTransactionResult {
+  @Field()
+  count: number;
+  @Field(() => [Transaction])
+  transactions: Transaction[];
 }
 
 @Resolver()
@@ -83,22 +92,50 @@ export class TransactionResolver {
       relations: ["medicines", "member"],
     });
 
-    console.log(transaction);
-
     return transaction;
   }
 
-  @Query(() => [Transaction], { nullable: true })
+  @Query(() => SearchTransactionResult, { nullable: true })
   @UseMiddleware(isAuth)
   async searchTransaction(
-    @Arg("complaint", () => String, { nullable: true }) complaint: any
-  ): Promise<Transaction[] | null> {
-    const transactions = this._transactionRepo.find({
-      where: {
-        complaint: complaint,
-      },
-    });
+    @Arg("searchParam", () => String, { nullable: true }) searchParam: any,
+    @Arg("limit", () => Number, { nullable: true }) limit: any,
+    @Arg("page", () => Number, { nullable: true }) page: any
+  ): Promise<SearchTransactionResult | null> {
+    const offset = page * limit;
 
-    return transactions;
+    const transactions = this._transactionRepo
+      .createQueryBuilder("transaction")
+      .leftJoinAndSelect("transaction.member", "member");
+
+    if (searchParam) {
+      const searchParamLower = searchParam.toLowerCase();
+      transactions
+        .where("lower(transaction.complaint) LIKE :complaint", {
+          complaint: `%${searchParamLower}%`,
+        })
+        .orWhere("lower(member.firstName) LIKE :firstName", {
+          firstName: `%${searchParamLower}%`,
+        });
+    }
+
+    const count = await transactions.getCount();
+
+    if (page) {
+      transactions.skip(offset);
+    }
+
+    if (limit) {
+      transactions.take(limit);
+    }
+
+    transactions.orderBy("transaction.id", "DESC");
+
+    const transactionResult = await transactions.getMany();
+
+    return {
+      count,
+      transactions: transactionResult,
+    };
   }
 }
