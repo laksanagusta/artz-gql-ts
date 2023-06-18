@@ -86,11 +86,12 @@ export class MemberResolver {
 
   @Query(() => SearchMemberResult, { nullable: true })
   async searchMember(
-    @Arg("phone_number", () => String, { nullable: true }) phone_number: any,
     @Arg("name", () => String, { nullable: true }) name: any,
     @Arg("limit", () => Number, { nullable: true }) limit: any,
     @Arg("page", () => Number, { nullable: true }) page: any
   ): Promise<SearchMemberResult | null> {
+    const offset = page * limit;
+
     const members = this._memberRepo.createQueryBuilder("member");
 
     if (name) {
@@ -102,16 +103,10 @@ export class MemberResolver {
       );
     }
 
-    if (phone_number) {
-      members.where("lower(member.phone_number) LIKE :phone_number", {
-        phone_number: `%${phone_number.toLowerCase()}%`,
-      });
-    }
-
     const count = await members.getCount();
 
     if (page) {
-      members.skip(page);
+      members.skip(offset);
     }
 
     if (limit) {

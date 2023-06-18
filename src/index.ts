@@ -9,6 +9,9 @@ import { MemberResolver } from "./resolvers/member";
 import { TransactionResolver } from "./resolvers/transaction";
 import { UserResolver } from "./resolvers/user";
 import { MedicineResolver } from "./resolvers/medicine";
+import { CaseResolver } from "./resolvers/case";
+import { SymptomResolver } from "./resolvers/symptom";
+import { AppointmentResolver } from "./resolvers/appointment";
 
 const main = async () => {
   await connectionSource.initialize();
@@ -20,10 +23,13 @@ const main = async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
+        AppointmentResolver,
+        CaseResolver,
+        MedicineResolver,
         MemberResolver,
+        SymptomResolver,
         TransactionResolver,
         UserResolver,
-        MedicineResolver,
       ],
       validate: false,
     }),

@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Transaction } from "./Transaction";
+import { Appointment } from "./Appointment";
 
 @ObjectType()
 @Entity()
@@ -39,6 +40,9 @@ export class Member extends BaseEntity {
 
   @OneToMany(() => Transaction, (transaction) => transaction.member)
   transactions: Transaction[];
+
+  @OneToMany(() => Appointment, (appointment) => appointment.member)
+  appointments: Appointment[];
 
   @Field(() => String)
   @CreateDateColumn()
