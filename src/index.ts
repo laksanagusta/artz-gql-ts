@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { __prod__ } from "./constants";
+import { __db_url, __port, __prod__ } from "./constants";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -42,7 +42,7 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
 
-  app.listen(4000, () => {
+  app.listen(__port, () => {
     console.log("server is running");
   });
 };

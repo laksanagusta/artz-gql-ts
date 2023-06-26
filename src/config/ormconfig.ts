@@ -1,11 +1,11 @@
-import { __prod__ } from "../constants";
+import { __db_url, __prod__ } from "../constants";
 import { DataSource } from "typeorm";
 import "dotenv-safe/config";
 
 export const connectionSource = new DataSource({
   migrationsTableName: "migrations",
   type: "postgres",
-  url: process.env.DATABASE_URL,
+  url: __db_url,
   logging: !__prod__,
   synchronize: false,
   name: "default",
