@@ -2,6 +2,5 @@
 .env
 .env.backup
 .env.production
-.env.example
 yarn-error.log
 /dist
