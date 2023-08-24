@@ -1,3 +1,5 @@
+"use client";
+
 import { __db_url, __prod__ } from "../constants";
 import { DataSource } from "typeorm";
 import "dotenv-safe/config";

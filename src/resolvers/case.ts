@@ -8,6 +8,7 @@ import {
   Query,
   Resolver,
   UseMiddleware,
+  // UseMiddleware,
 } from "type-graphql";
 import { Case } from "../entities/Case";
 import { connectionSource } from "../config/ormconfig";
@@ -15,17 +16,25 @@ import { Repository } from "typeorm";
 import { isAuth } from "../middleware/auth";
 
 @InputType()
-class CaseInput {
+export class CaseInput {
   @Field()
   name: string;
+
+  @Field()
+  description: string;
 }
 
 @ObjectType()
-class SearchCaseResult {
+export class SearchCaseResult {
   @Field()
   count: number;
   @Field(() => [Case])
   cases: Case[];
+}
+@ObjectType()
+export class CaseNotFound {
+  @Field()
+  message: string;
 }
 
 @Resolver()
@@ -53,6 +62,7 @@ export class CaseResolver {
       .update(Case)
       .set({
         name: input.name,
+        description: input.description,
       })
       .where("id = :id", { id: id })
       .execute();
@@ -61,12 +71,26 @@ export class CaseResolver {
   }
 
   @Query(() => Case, { nullable: true })
-  async caseFindById(@Arg("id", () => Int) id: any): Promise<Case | null> {
-    const caseRes = await this._caseRepo.findOneBy({
-      id: id,
-    });
+  async caseFindById(
+    @Arg("id", () => Int) id: any
+  ): Promise<Case | CaseNotFound> {
+    try {
+      const caseRes = await this._caseRepo.findOneBy({
+        id: id,
+      });
 
-    return caseRes;
+      if (!caseRes) {
+        return {
+          message: "Data Not found",
+        };
+      }
+
+      return caseRes;
+    } catch (error) {
+      return {
+        message: "Data Not found",
+      };
+    }
   }
 
   @Query(() => SearchCaseResult, { nullable: true })

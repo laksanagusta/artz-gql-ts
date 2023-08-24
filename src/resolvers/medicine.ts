@@ -18,12 +18,16 @@ import { isAuth } from "../middleware/auth";
 class MedicineInput {
   @Field()
   name: string;
+
+  @Field()
+  description: string;
 }
 
 @ObjectType()
 class SearchMedicineResult {
   @Field()
   count: number;
+
   @Field(() => [Medicine])
   medicines: Medicine[];
 }
@@ -36,6 +40,7 @@ export class MedicineResolver {
   }
 
   @Mutation(() => Medicine)
+  @UseMiddleware(isAuth)
   async createMedicine(@Arg("input") input: MedicineInput): Promise<Medicine> {
     return await Medicine.create({
       ...input,
@@ -53,6 +58,7 @@ export class MedicineResolver {
       .update(Medicine)
       .set({
         name: input.name,
+        description: input.description,
       })
       .where("id = :id", { id: id })
       .execute();

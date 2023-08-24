@@ -89,7 +89,7 @@ export class TransactionResolver {
   ): Promise<Transaction | null> {
     const transaction = await this._transactionRepo.findOne({
       where: { id: id },
-      relations: ["medicines", "member"],
+      relations: ["medicines", "member", "case", "symptom"],
     });
 
     return transaction;

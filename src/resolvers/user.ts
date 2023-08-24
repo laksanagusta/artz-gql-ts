@@ -12,9 +12,9 @@ import {
 import { User } from "../entities/User";
 import { connectionSource } from "../config/ormconfig";
 import { Repository } from "typeorm";
-// import { isAuth } from "../middleware/auth";
 import argon2 from "argon2";
 import Jwt from "jsonwebtoken";
+import { __jwt_secret } from "../config/credentials";
 
 @InputType()
 class UserInput {
@@ -54,6 +54,8 @@ export class UserResolver {
   @Mutation(() => User)
   async register(@Arg("input") input: UserInput): Promise<User> {
     input.password = await argon2.hash(input.password);
+
+    console.log(input);
     const user = await User.create({
       ...input,
     }).save();
@@ -87,7 +89,7 @@ export class UserResolver {
         id: user.id,
         email: user.email,
       },
-      process.env.JWT_SECRET_KEY
+      __jwt_secret ?? ""
     );
 
     user.token = token;

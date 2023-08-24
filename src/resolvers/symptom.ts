@@ -18,6 +18,8 @@ import { isAuth } from "../middleware/auth";
 class SymptomInput {
   @Field()
   name: string;
+  @Field()
+  description: string;
 }
 
 @ObjectType()

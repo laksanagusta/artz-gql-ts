@@ -3,6 +3,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -19,6 +20,12 @@ export class Medicine extends BaseEntity {
   @Column()
   name: String;
 
+  @Field()
+  @Column({
+    default: "description",
+  })
+  description: String;
+
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
@@ -26,4 +33,7 @@ export class Medicine extends BaseEntity {
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
 }

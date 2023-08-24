@@ -13,8 +13,6 @@ import { Member } from "../entities/Member";
 import { connectionSource } from "../config/ormconfig";
 import { Repository } from "typeorm";
 import { isAuth } from "../middleware/auth";
-// import { MyContext } from "src/types";
-// import memberCreateSchema from "../validations/MemberValidation";
 
 @InputType()
 class MemberInput {

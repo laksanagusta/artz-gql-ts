@@ -15,10 +15,16 @@ import { AppointmentResolver } from "./resolvers/appointment";
 
 const main = async () => {
   await connectionSource.initialize();
-
   await connectionSource.runMigrations();
 
   const app = express();
+
+  const overrideError = (err: Error) => {
+    if (err.message.startsWith("Database Error: ")) {
+      return new Error("Internal server error");
+    }
+    return err;
+  };
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -33,6 +39,7 @@ const main = async () => {
       ],
       validate: false,
     }),
+    formatError: overrideError,
     context: ({ req, res }) => ({
       req,
       res,

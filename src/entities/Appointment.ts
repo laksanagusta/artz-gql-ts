@@ -1,4 +1,3 @@
-import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -9,6 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Member } from "./Member";
+import { Field, ObjectType } from "type-graphql";
 
 @ObjectType()
 @Entity()

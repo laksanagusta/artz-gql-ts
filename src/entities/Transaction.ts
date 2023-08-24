@@ -12,6 +12,8 @@ import {
 import { Field, ObjectType } from "type-graphql";
 import { Medicine } from "./Medicine";
 import { Member } from "./Member";
+import { Case } from "./Case";
+import { Symptom } from "./Symptom";
 
 @ObjectType()
 @Entity()
@@ -40,6 +42,16 @@ export class Transaction extends BaseEntity {
   @ManyToMany(() => Medicine, { cascade: true })
   @JoinTable()
   medicines: Medicine[];
+
+  @Field(() => [Case])
+  @ManyToMany(() => Case, { cascade: true })
+  @JoinTable()
+  cases: Case[];
+
+  @Field(() => [Symptom])
+  @ManyToMany(() => Symptom, { cascade: true })
+  @JoinTable()
+  symptoms: Symptom[];
 
   @Field(() => Member)
   @ManyToOne(() => Member, (member) => member.transactions)

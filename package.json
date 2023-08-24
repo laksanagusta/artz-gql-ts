@@ -6,9 +6,9 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
-    "dev2": "nodemon --exec ts-node src/index.ts",
+    "dev-ts": "nodemon --exec ts-node src/index.ts",
     "start": "node dist/index.js",
-    "start2": "ts-node src/index.ts",
+    "start-ts": "ts-node src/index.ts",
     "build": "tsc",
     "drop:schema" : "npx typeorm schema:drop -d ./dist/config/ormconfig.js",
     "migration:generate" : "npx typeorm migration:generate -d ./dist/config/ormconfig.js ./src/migrations/initial",
